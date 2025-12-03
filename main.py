@@ -95,3 +95,10 @@ scaler = StandardScaler()
 scaled = scaler.fit_transform(features)
 target = tesla['target']
 X_train, X_valid, Y_train, Y_valid = train_test_split(features, target, test_size=0.1, random_state=30834)
+
+models = [LogisticRegression(), SVC(kernel='poly', probability=True), XGBClassifier()]
+for i in range(3):
+    models[i].fit(X_train, Y_train)
+    print("Model is: " + f'{models[i]}')
+    print("Training Accuracy: ", metrics.roc_auc_score(Y_train, models[i].predict_proba(X_train)[:,1]))
+    print("Validation Accuracy: ", metrics.roc_auc_score(Y_valid, models[i].predict_proba(X_valid)[:,1]))
