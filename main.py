@@ -55,7 +55,7 @@ plt.subplots(figsize=(20,10))
 for i, col in enumerate(features):
     plt.subplot(2,3, i+1)
     sb.boxplot(tesla[col])
-plt.show()
+#plt.show()
 
 #Splitting data by time and day
 splitted = tesla["Date"].str.split('/', expand=True)
@@ -73,7 +73,25 @@ plt.subplots(figsize=(20,10))
 for i, col in enumerate(['Open', 'High', 'Low', 'Close']):
     plt.subplot(2,2, i+1)
     date_grouped[col].plot.bar()
-plt.show()
+#plt.show()
 
 is_quarter = tesla.drop('Date', axis=1).groupby('is_quarter_end').mean()
 is_quarter.head()
+
+tesla['open-close'] = tesla['Open'] - tesla['Close']
+tesla['low-high'] = tesla['Low'] - tesla['High']
+tesla['target'] = np.where(tesla['Close'].shift(-1) > tesla['Close'],1, 0)
+
+plt.pie(tesla['target'].value_counts().values, labels=[0,1],autopct='%1.11f%%')
+plt.show()
+
+plt.figure(figsize=(10,10))
+
+sb.heatmap(tesla.drop('Date', axis=1).corr() > 0.9, annot=True, cbar=False)
+plt.show()
+
+features = tesla[['open-close', 'low-high', 'is_quarter_end']]
+scaler = StandardScaler()
+scaled = scaler.fit_transform(features)
+target = tesla['target']
+X_train, X_valid, Y_train, Y_valid = train_test_split(features, target, test_size=0.1, random_state=30834)
